@@ -172,18 +172,18 @@ class VokabelRepository:
         verbindung.close()
 
     def aktualisiere_status(self, vokabel_id: int, neuer_status: str) -> None:
-        """
-        Setzt den Lernstatus einer Vokabel (z. B. 'sicher' oder 'unsicher').
-        """
+        
+        # Setzt den Lernstatus einer Vokabel (z. B. 'sicher' oder 'unsicher').
+        
         verbindung = hole_datenbank_verbindung()
         cursor = verbindung.cursor()
 
         cursor.execute(
-            """
-            UPDATE vokabel
-            SET status = ?
-            WHERE id = ?;
-            """,
+            
+            # UPDATE vokabel
+            # SET status = ?
+            # WHERE id = ?;
+            
             (neuer_status, vokabel_id),
         )
 

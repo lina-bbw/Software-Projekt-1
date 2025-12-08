@@ -62,18 +62,18 @@ class SetRepository:
         return sets
 
     def hole_set_nach_id(self, set_id: int) -> Optional[VokabelSet]:
-        """
-        Sucht ein Set anhand seiner ID.
-        """
+        
+        # Sucht ein Set anhand seiner ID.
+        
         verbindung = hole_datenbank_verbindung()
         cursor = verbindung.cursor()
 
         cursor.execute(
-            """
-            SELECT id, benutzer_id, name
-            FROM vokabel_set
-            WHERE id = ?;
-            """,
+            
+            # SELECT id, benutzer_id, name
+            # FROM vokabel_set
+            # WHERE id = ?;
+            
             (set_id,),
         )
 

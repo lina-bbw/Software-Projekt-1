@@ -82,4 +82,3 @@ class BenutzerRepository:
             return None
 
         return zeile["passwort_hash"]
-s

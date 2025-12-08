@@ -8,10 +8,10 @@ DATENBANK_DATEI = "vocabulary_builder.db"
 
 
 def hole_datenbank_verbindung() -> sqlite3.Connection:
-    """
-    Stellt eine Verbindung zur SQLite-Datenbank her.
-    Wenn die Datei noch nicht existiert, wird sie automatisch angelegt.
-    """
+    
+    # Stellt eine Verbindung zur SQLite-Datenbank her.
+    # Wenn die Datei noch nicht existiert, wird sie automatisch angelegt.
+    
     datenbank_pfad = Path(DATENBANK_DATEI)
     verbindung = sqlite3.connect(datenbank_pfad)
     verbindung.row_factory = sqlite3.Row
@@ -19,11 +19,10 @@ def hole_datenbank_verbindung() -> sqlite3.Connection:
 
 
 def initialisiere_datenbank():
-    """
-    Legt die benötigten Tabellen an, falls sie noch nicht existieren.
-    Wenn bereits eine ältere Version der Tabelle 'vokabel' existiert,
-    wird versucht, die Spalte 'set_id' nachträglich hinzuzufügen.
-    """
+    
+    # Legt die benötigten Tabellen an, falls sie noch nicht existieren.
+    # Wenn bereits eine ältere Version der Tabelle 'vokabel' existiert, wird versucht, die Spalte 'set_id' nachträglich hinzuzufügen.
+    
 
     verbindung = hole_datenbank_verbindung()
     cursor = verbindung.cursor()

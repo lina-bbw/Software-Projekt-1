@@ -7,19 +7,19 @@ from services.set_service import SetService
 
 
 def zeige_hauptmenue():
-    """
-    Menü für nicht eingeloggte Benutzer.
-    """
-    print("\n=== Vocabulary Builder ===")
+    
+    # Menü für nicht eingeloggte Benutzer.
+   
+    print("\n=== Vocapp ===")
     print("1) Registrieren")
     print("2) Anmelden")
-    print("0) Beenden")
+    print("0) Abmelden")
 
 
 def zeige_benutzermenue(benutzer_email: str):
-    """
-    Menü für eingeloggte Benutzer.
-    """
+    
+    # Menü für eingeloggte Benutzer.
+    
     print(f"\n=== Willkommen, {benutzer_email}! ===")
     print("1) Neue Vokabel anlegen")
     print("2) Vokabeln anzeigen / bearbeiten / löschen")
@@ -29,11 +29,11 @@ def zeige_benutzermenue(benutzer_email: str):
 
 
 def set_auswahl_dialog(set_service: SetService, benutzer_id: int) -> int | None:
-    """
-    Hilfsfunktion:
-    Lässt den Benutzer ein Set auswählen oder kein Set verwenden.
-    Rückgabe: Set-ID oder None.
-    """
+    
+    # Hilfsfunktion:
+    # Lässt den Benutzer ein Set auswählen oder kein Set verwenden.
+    # Rückgabe: Set-ID oder None.
+    
     sets = set_service.hole_sets_fuer_benutzer(benutzer_id)
 
     if not sets:
@@ -68,9 +68,9 @@ def set_auswahl_dialog(set_service: SetService, benutzer_id: int) -> int | None:
 def dialog_neue_vokabel(
     lern_service: LernService, set_service: SetService, benutzer_id: int
 ):
-    """
-    Fragt vom Benutzer die Daten für eine neue Vokabel ab.
-    """
+    
+    # Fragt vom Benutzer die Daten für eine neue Vokabel ab.
+    
     print("\n--- Neue Vokabel anlegen ---")
     wort = input("Vokabel (Wort): ").strip()
     uebersetzung = input("Übersetzung: ").strip()
@@ -92,9 +92,9 @@ def dialog_neue_vokabel(
 def dialog_vokabel_verwaltung(
     lern_service: LernService, set_service: SetService, benutzer_id: int
 ):
-    """
-    Listet Vokabeln auf und erlaubt Bearbeiten und Löschen.
-    """
+    
+    # Listet Vokabeln auf und erlaubt Bearbeiten und Löschen.
+     
     print("\n--- Vokabelverwaltung ---")
     sets = set_service.hole_sets_fuer_benutzer(benutzer_id)
 
@@ -188,9 +188,9 @@ def dialog_vokabel_verwaltung(
 
 
 def dialog_sets_verwalten(set_service: SetService, benutzer_id: int):
-    """
-    Ermöglicht das Anlegen und Anzeigen von Sets.
-    """
+    
+    # Ermöglicht das Anlegen und Anzeigen von Sets.
+    
     print("\n--- Sets verwalten ---")
     print("1) Neues Set anlegen")
     print("2) Alle Sets anzeigen")
@@ -217,10 +217,9 @@ def dialog_sets_verwalten(set_service: SetService, benutzer_id: int):
 
 
 def dialog_karteikarten(lern_service: LernService, set_service: SetService, benutzer_id: int):
-    """
-    Startet den Karteikartenmodus – wahlweise mit allen Vokabeln
-    oder nur einem bestimmten Set.
-    """
+    
+    # Startet den Karteikartenmodus: wahlweise mit allen Vokabeln oder nur einem bestimmten Set.
+    
     print("\n--- Lernen (Karteikarten) ---")
     print("1) Alle Vokabeln üben")
     print("2) Nur Vokabeln aus einem Set üben")
