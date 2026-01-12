@@ -6,9 +6,10 @@ from modelle.vokabel import Vokabel
 
 
 class LernService:
-    
-    # Enthält Lernlogik für den Karteikartenmodus und einfache Hilfsfunktionen für Vokabeln.
-    
+    """
+    Enthält Lernlogik für den Karteikartenmodus
+    und einfache Hilfsfunktionen für Vokabeln.
+    """
 
     def __init__(self):
         self.vokabel_repository = VokabelRepository()
@@ -21,9 +22,9 @@ class LernService:
         beispielsatz: str | None,
         set_id: int | None,
     ):
-        
-        # Legt eine neue Vokabel über das Repository an.
-        
+        """
+        Legt eine neue Vokabel über das Repository an.
+        """
         if not wort or not uebersetzung:
             print("Wort und Übersetzung dürfen nicht leer sein.")
             return
@@ -40,9 +41,9 @@ class LernService:
     def hole_alle_vokabeln(
         self, benutzer_id: int, set_id: int | None = None
     ) -> List[Vokabel]:
-        
-        # Gibt alle Vokabeln eines Benutzers (optional gefiltert nach Set) zurück.
-        
+        """
+        Gibt alle Vokabeln eines Benutzers (optional gefiltert nach Set) zurück.
+        """
         return self.vokabel_repository.hole_alle_vokabeln_fuer_benutzer(
             benutzer_id, set_id
         )
@@ -55,9 +56,9 @@ class LernService:
         neuer_beispielsatz: str | None,
         neues_set_id: int | None,
     ):
-        
-        # Aktualisiert eine Vokabel.
-        
+        """
+        Aktualisiert eine Vokabel.
+        """
         self.vokabel_repository.aktualisiere_vokabel(
             vokabel_id=vokabel_id,
             neues_wort=neues_wort,
@@ -68,16 +69,16 @@ class LernService:
         print("Vokabel wurde aktualisiert.")
 
     def loesche_vokabel(self, vokabel_id: int):
-        
-        # Löscht eine Vokabel.
-        
+        """
+        Löscht eine Vokabel.
+        """
         self.vokabel_repository.vokabel_loeschen(vokabel_id)
         print("Vokabel wurde gelöscht.")
 
     def setze_vokabel_status(self, vokabel_id: int, neuer_status: str):
-        
-        # Setzt den Status einer Vokabel ('neu', 'unsicher', 'sicher').
-        
+        """
+        Setzt den Status einer Vokabel ('neu', 'unsicher', 'sicher').
+        """
         self.vokabel_repository.aktualisiere_status(vokabel_id, neuer_status)
 
     def starte_karteikarten_modus(

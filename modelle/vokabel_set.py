@@ -2,9 +2,9 @@
 
 
 class VokabelSet:
-    
-    # Repräsentiert ein Set / Thema, z. B. 'Tiere', 'Farben', 'Urlaub'.
-    
+    """
+    Repräsentiert ein Set / Thema, z. B. 'Tiere', 'Farben', 'Urlaub'.
+    """
 
     def __init__(self, set_id: int, benutzer_id: int, name: str):
         self.id = set_id

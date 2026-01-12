@@ -1,23 +1,11 @@
-# sicherheit/passwort_hasher.py
-
 import hashlib
 
-
-def hash_passwort(klartext_passwort: str) -> str:
-    
-    # Erzeugt aus einem Klartext-Passwort einen SHA256-Hash.
-    # Hinweis: Für ein echtes Produktivsystem sollte ein Salt und z. B. bcrypt verwendet werden. 
-    # Für das Studienprojekt reicht SHA256 aus.
-   
-    if klartext_passwort is None:
+# Diese Funktion erstellt einen SHA256-Hash aus einem Passwort
+# Für ein Studentenprojekt ist das ok (produktiv würde man z.B. bcrypt + Salt nutzen)
+def hash_passwort(passwort_klartext: str) -> str:
+    if passwort_klartext is None:
         raise ValueError("Passwort darf nicht None sein.")
 
-    # Klartext in Bytes umwandeln
-    passwort_bytes = klartext_passwort.encode("utf-8")
-
-    # Hash berechnen
+    passwort_bytes = passwort_klartext.encode("utf-8")
     hash_objekt = hashlib.sha256(passwort_bytes)
-    passwort_hash = hash_objekt.hexdigest()
-
-    return passwort_hash 
-
+    return hash_objekt.hexdigest()

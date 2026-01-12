@@ -2,10 +2,10 @@
 
 
 class Benutzer:
-    
-    # Einfache Datenklasse für einen Benutzer.
-    # Enthält nur die wichtigsten Informationen, die wir im Programm nutzen.
-    
+    """
+    Einfache Datenklasse für einen Benutzer.
+    Enthält nur die wichtigsten Informationen, die wir im Programm nutzen.
+    """
 
     def __init__(self, benutzer_id: int, email: str):
         self.id = benutzer_id

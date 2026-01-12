@@ -8,19 +8,20 @@ from sicherheit.passwort_hasher import hash_passwort
 
 
 class BenutzerService:
-    
-    # Enthält die Logik rund um Registrierung und Anmeldung.
-    # Der Service spricht mit dem Repository und kümmert sich um das Hashen des Passworts.
-    
+    """
+    Enthält die Logik rund um Registrierung und Anmeldung.
+    Der Service spricht mit dem Repository und kümmert sich
+    um das Hashen des Passworts.
+    """
 
     def __init__(self):
         self.benutzer_repository = BenutzerRepository()
 
     def registriere_neuen_benutzer(self, email: str, passwort: str) -> bool:
-        
-        # Versucht, einen neuen Benutzer anzulegen.
-        # Gibt True zurück, wenn es geklappt hat.
-        
+        """
+        Versucht, einen neuen Benutzer anzulegen.
+        Gibt True zurück, wenn es geklappt hat.
+        """
         if not email or not passwort:
             print("E-Mail und Passwort dürfen nicht leer sein.")
             return False
@@ -41,10 +42,10 @@ class BenutzerService:
         return erfolgreich
 
     def melde_benutzer_an(self, email: str, passwort: str) -> Optional[Benutzer]:
-        
-        # Prüft E-Mail und Passwort.
-        # Gibt ein Benutzer-Objekt zurück, wenn die Anmeldung erfolgreich war.
-        
+        """
+        Prüft E-Mail und Passwort.
+        Gibt ein Benutzer-Objekt zurück, wenn die Anmeldung erfolgreich war.
+        """
         gespeicherter_hash = self.benutzer_repository.hole_passwort_hash(email)
 
         if gespeicherter_hash is None:

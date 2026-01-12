@@ -2,9 +2,9 @@
 
 
 class Vokabel:
-    
-    # Repräsentiert eine einzelne Vokabel eines Benutzers.
-    
+    """
+    Repräsentiert eine einzelne Vokabel eines Benutzers.
+    """
 
     def __init__(
         self,
