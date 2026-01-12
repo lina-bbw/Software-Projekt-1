@@ -1,5 +1,5 @@
 # services/lern_service.py
-
+import random
 from typing import List
 from datenbank.vokabel_repository import VokabelRepository
 from modelle.vokabel import Vokabel
@@ -129,3 +129,99 @@ class LernService:
 
             self.setze_vokabel_status(vokabel_id=vokabel.id, neuer_status=neuer_status)
             print(f"Status wurde auf '{neuer_status}' gesetzt.\n")
+    
+    def _baue_antwortoptionen(self, richtige_antwort: str, pool: list[str], anzahl_optionen: int = 4) -> list[str]:
+        """
+        Baut eine Liste aus Antwortoptionen:
+        1 richtige + (anzahl_optionen-1) falsche aus dem Pool, ohne Duplikate.
+        """
+        # Pool ohne die richtige Antwort
+        falscher_pool = [x for x in pool if x != richtige_antwort]
+
+        # Falls zu wenige Daten vorhanden sind
+        if len(falscher_pool) < anzahl_optionen - 1:
+            # Wir geben dann weniger Optionen zurück (besser als Absturz)
+            optionen = [richtige_antwort] + falscher_pool
+            random.shuffle(optionen)
+            return optionen
+
+        falsche = random.sample(falscher_pool, anzahl_optionen - 1)
+        optionen = [richtige_antwort] + falsche
+        random.shuffle(optionen)
+        return optionen
+
+    def starte_multiple_choice_runde(self, benutzer_id: int, set_id: int | None = None, max_fragen: int = 10):
+        """
+        Multiple Choice Quizrunde:
+        - pro Frage zufällig: Wort -> Übersetzung ODER Übersetzung -> Wort
+        - 4 Antwortmöglichkeiten (1 richtig, 3 falsch)
+        - max. 10 Fragen pro Runde (oder weniger, wenn weniger Vokabeln existieren)
+        - 'q' beendet frühzeitig
+        """
+
+        vokabeln = self.hole_alle_vokabeln(benutzer_id, set_id)
+
+        if len(vokabeln) < 4:
+            print("Für Multiple Choice brauchst du mindestens 4 Vokabeln (damit 4 Optionen möglich sind).")
+            return
+
+        # Pools für falsche Antworten
+        alle_uebersetzungen = self.vokabel_repository.hole_alle_uebersetzungen(benutzer_id, set_id)
+        alle_woerter = self.vokabel_repository.hole_alle_woerter(benutzer_id, set_id)
+
+        # Anzahl Fragen begrenzen
+        random.shuffle(vokabeln)
+        runden_vokabeln = vokabeln[: min(max_fragen, len(vokabeln))]
+
+        print("\n--- Multiple Choice (gemischt) ---")
+        print(f"Maximal {max_fragen} Fragen pro Runde. Eingabe 'q' beendet.\n")
+
+        punkte = 0
+        gesamt = 0
+
+        for vokabel in runden_vokabeln:
+            gesamt += 1
+
+            # Richtung pro Frage zufällig wählen
+            richtung = random.choice(["wort_zu_uebersetzung", "uebersetzung_zu_wort"])
+
+            if richtung == "wort_zu_uebersetzung":
+                frage_text = f"Wort: {vokabel.wort}"
+                richtige = vokabel.uebersetzung
+                optionen = self._baue_antwortoptionen(richtige, alle_uebersetzungen, 4)
+            else:
+                frage_text = f"Übersetzung: {vokabel.uebersetzung}"
+                richtige = vokabel.wort
+                optionen = self._baue_antwortoptionen(richtige, alle_woerter, 4)
+
+            print(f"Frage {gesamt}/{len(runden_vokabeln)}")
+            print(frage_text)
+            for i, opt in enumerate(optionen, start=1):
+                print(f"  {i}) {opt}")
+
+            eingabe = input("Deine Antwort (1-4 oder q): ").strip().lower()
+            if eingabe == "q":
+                print("Runde beendet.\n")
+                break
+
+            try:
+                index = int(eingabe) - 1
+                if index < 0 or index >= len(optionen):
+                    print("Ungültige Auswahl.\n")
+                    continue
+            except ValueError:
+                print("Bitte eine Zahl eingeben.\n")
+                continue
+
+            ausgewaehlt = optionen[index]
+
+            if ausgewaehlt == richtige:
+                punkte += 1
+                print("✅ Richtig!\n")
+                self.setze_vokabel_status(vokabel.id, "sicher")
+            else:
+                print(f"❌ Falsch. Richtig wäre: {richtige}\n")
+                self.setze_vokabel_status(vokabel.id, "unsicher")
+
+        if gesamt > 0:
+            print(f"Ergebnis: {punkte}/{gesamt} richtig.\n")

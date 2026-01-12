@@ -25,6 +25,7 @@ def zeige_benutzermenue(benutzer_email: str):
     print("2) Vokabeln verwalten")
     print("3) Sets verwalten")
     print("4) Lernen (Karteikarten)")
+    print("5) Quiz (Multiple Choice)")
     print("0) Abmelden")
 
 def set_auswahl_dialog(set_service: SetService, benutzer_id: int) -> int | None:
@@ -297,6 +298,26 @@ def dialog_karteikarten(lern_service: LernService, set_service: SetService, benu
 
     lern_service.starte_karteikarten_modus(benutzer_id=benutzer_id, set_id=set_id)
 
+def dialog_multiple_choice(lern_service: LernService, set_service: SetService, benutzer_id: int):
+    print("\n--- Quiz (Multiple Choice) ---")
+    print("1) Quiz starten (gemischt, max. 10 Fragen)")
+    print("2) Quiz starten (nur aus einem Set, gemischt, max. 10 Fragen)")
+    print("0) Zurück")
+
+    auswahl = input("Auswahl: ").strip()
+    if auswahl == "0":
+        return
+
+    set_id = None
+    if auswahl == "2":
+        set_id = set_auswahl_dialog(set_service, benutzer_id)
+
+    # Start: gemischt, max 10
+    lern_service.starte_multiple_choice_runde(
+        benutzer_id=benutzer_id,
+        set_id=set_id,
+        max_fragen=10
+    )
 
 def hauptschleife():
     # Datenbank vorbereiten
@@ -361,6 +382,13 @@ def hauptschleife():
                     lern_service=lern_service,
                     set_service=set_service,
                     benutzer_id=angemeldeter_benutzer.id,
+                )
+
+            elif auswahl == "5":
+                dialog_multiple_choice(
+                    lern_service, 
+                    set_service, 
+                    angemeldeter_benutzer.id,
                 )
 
             elif auswahl == "0":

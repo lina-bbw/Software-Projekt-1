@@ -189,3 +189,45 @@ class VokabelRepository:
 
         verbindung.commit()
         verbindung.close()
+
+    def hole_alle_uebersetzungen(self, benutzer_id: int, set_id: int | None = None) -> list[str]:
+        """
+        Liefert alle Übersetzungen eines Benutzers (optional nur aus einem Set).
+        Wird für Multiple Choice genutzt.
+        """
+        verbindung = hole_datenbank_verbindung()
+        cursor = verbindung.cursor()
+
+        sql = "SELECT uebersetzung FROM vokabel WHERE benutzer_id = ?"
+        parameter = [benutzer_id]
+
+        if set_id is not None:
+            sql += " AND set_id = ?"
+            parameter.append(set_id)
+
+        cursor.execute(sql + ";", parameter)
+        zeilen = cursor.fetchall()
+        verbindung.close()
+
+        return [z["uebersetzung"] for z in zeilen]
+
+    def hole_alle_woerter(self, benutzer_id: int, set_id: int | None = None) -> list[str]:
+        """
+        Liefert alle Wörter eines Benutzers (optional nur aus einem Set).
+        Wird für Multiple Choice genutzt.
+        """
+        verbindung = hole_datenbank_verbindung()
+        cursor = verbindung.cursor()
+
+        sql = "SELECT wort FROM vokabel WHERE benutzer_id = ?"
+        parameter = [benutzer_id]
+
+        if set_id is not None:
+            sql += " AND set_id = ?"
+            parameter.append(set_id)
+
+        cursor.execute(sql + ";", parameter)
+        zeilen = cursor.fetchall()
+        verbindung.close()
+
+        return [z["wort"] for z in zeilen]
