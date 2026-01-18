@@ -1,1 +1,10 @@
+# Datenbank-Dateien ignorieren
 *.db
+
+# Python Cache ignorieren
+__pycache__/
+*.pyc
+
+# macOS Dateien
+.DS_Store
+
