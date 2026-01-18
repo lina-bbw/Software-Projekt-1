@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card">
+  <h2>Hi, {{ email }}</h2>
+
+  <p class="small">
+    <strong>Streak:</strong> {{ streak }} Tag(e) 🔥
+    <br>
+    <strong>Vokabeln:</strong> {{ vokabel_gesamt }} ·
+    <strong>Sets:</strong> {{ anzahl_sets }}
+  </p>
+
+  <p class="small">
+    Neu: {{ anzahl_neu }} · Unsicher: {{ anzahl_unsicher }} · Sicher: {{ anzahl_sicher }}
+  </p>
+
+  <div class="nav">
+    <a href="{{ url_for('vokabel_neu') }}"><button class="btn btn-v">Neue Vokabel</button></a>
+    <a href="{{ url_for('sets') }}"><button class="btn btn-w">Sets verwalten</button></a>
+  </div>
+
+  <div class="card" style="box-shadow:none; border:1px solid #eee; margin-top:12px;">
+    <strong>Lernfortschritt</strong>
+    <div class="small">{{ anzahl_sicher }} von {{ gesamt_vokabeln }} sicher ({{ fortschritt_prozent }}%)</div>
+  
+    <div style="background:#eee; border-radius:999px; height:14px; margin-top:10px; overflow:hidden;">
+      <div id="fortschrittBar" style="height:14px; width:0%; background:#7b3fff;"></div>
+    </div>
+  </div>
+  
+  <script>
+    // ✅ VS Code meckert nicht, weil width in JS gesetzt wird
+    document.getElementById("fortschrittBar").style.width = "{{ fortschritt_prozent }}%";
+  </script>  
+
+  <div class="nav">
+    <a href="{{ url_for('karteikarten') }}"><button class="btn btn-v">Karteikarten</button></a>
+    <a href="{{ url_for('quiz_start') }}"><button class="btn btn-w">Quiz</button></a>
+  </div>
+
+  <a href="{{ url_for('vokabeln') }}"><button class="btn btn-w">Alle Vokabeln ansehen</button></a>
+</div>
+
+<div class="card">
+  <h3>Deine Sets</h3>
+  <p class="small">Tippe auf ein Set, um direkt die passenden Vokabeln zu sehen.</p>
+
+  {% if sets %}
+    <!-- Simple Liste (mobile-friendly) -->
+    <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+      {% for s in sets %}
+        <a href="{{ url_for('vokabeln') }}?set_id={{ s.id }}"
+           style="display:block; padding:12px 14px; border-radius:14px; border:1px solid #eee; background:#fff;">
+          <strong>{{ s.name }}</strong>
+          <span class="small" style="display:block; margin-top:4px;">
+            Vokabeln anzeigen →
+          </span>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="small">Du hast noch keine Sets. Erstelle eins über „Sets verwalten“.</p>
+  {% endif %}
+</div>
+
+<a href="{{ url_for('abmelden') }}"><button class="btn btn-w">Abmelden</button></a>
+
+{% endblock %}

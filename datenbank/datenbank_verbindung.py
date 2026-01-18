@@ -1,82 +1,64 @@
 # datenbank/datenbank_verbindung.py
 
 import sqlite3
-from pathlib import Path
+import os
 
-# Name der SQLite-Datenbank-Datei
-DATENBANK_DATEI = "vocabulary_builder.db"
+# ✅ DB-Pfad immer stabil (egal wie du startest)
+BASIS_ORDNER = os.path.dirname(os.path.abspath(__file__))
+DB_PFAD = os.path.join(BASIS_ORDNER, "..", "vocabulary_builder.db")
 
 
-def hole_datenbank_verbindung() -> sqlite3.Connection:
+def hole_datenbank_verbindung():
     """
-    Stellt eine Verbindung zur SQLite-Datenbank her.
-    Wenn die Datei noch nicht existiert, wird sie automatisch angelegt.
+    Öffnet die SQLite-Datenbank.
+    Debug-Ausgabe zeigt, welche DB wirklich genutzt wird.
     """
-    datenbank_pfad = Path(DATENBANK_DATEI)
-    verbindung = sqlite3.connect(datenbank_pfad)
+    print("DB-PFAD (Flask nutzt):", os.path.abspath(DB_PFAD))
+    verbindung = sqlite3.connect(DB_PFAD)
     verbindung.row_factory = sqlite3.Row
     return verbindung
 
 
 def initialisiere_datenbank():
     """
-    Legt die benötigten Tabellen an, falls sie noch nicht existieren.
-    Wenn bereits eine ältere Version der Tabelle 'vokabel' existiert,
-    wird versucht, die Spalte 'set_id' nachträglich hinzuzufügen.
+    Legt Tabellen an, falls sie noch nicht existieren.
     """
-
     verbindung = hole_datenbank_verbindung()
     cursor = verbindung.cursor()
 
-    # Tabelle für Benutzer
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS benutzer (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL,
-            passwort_hash TEXT NOT NULL,
-            erstellt_am TEXT DEFAULT CURRENT_TIMESTAMP
-        );
-        """
-    )
+    # Benutzer
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS benutzer (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT NOT NULL UNIQUE,
+        passwort_hash TEXT NOT NULL
+    );
+    """)
 
-    # Tabelle für Sets / Themen
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS vokabel_set (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            benutzer_id INTEGER NOT NULL,
-            name TEXT NOT NULL,
-            erstellt_am TEXT DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (benutzer_id) REFERENCES benutzer(id)
-        );
-        """
-    )
+    # Sets
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS vokabel_set (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        benutzer_id INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        FOREIGN KEY (benutzer_id) REFERENCES benutzer(id)
+    );
+    """)
 
-    # Tabelle für Vokabeln (neues Design inkl. set_id)
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS vokabel (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            benutzer_id INTEGER NOT NULL,
-            wort TEXT NOT NULL,
-            uebersetzung TEXT NOT NULL,
-            beispielsatz TEXT,
-            status TEXT DEFAULT 'neu', -- neu | unsicher | sicher
-            set_id INTEGER,
-            erstellt_am TEXT DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (benutzer_id) REFERENCES benutzer(id),
-            FOREIGN KEY (set_id) REFERENCES vokabel_set(id)
-        );
-        """
-    )
-
-    # Falls es eine alte Tabelle ohne Spalte 'set_id' gibt: Spalte nachträglich anlegen
-    try:
-        cursor.execute("ALTER TABLE vokabel ADD COLUMN set_id INTEGER;")
-    except Exception:
-        # Wenn der Befehl fehlschlägt, existiert die Spalte vermutlich schon -> ignorieren
-        pass
+    # Vokabeln
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS vokabel (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        benutzer_id INTEGER NOT NULL,
+        wort TEXT NOT NULL,
+        uebersetzung TEXT NOT NULL,
+        beispielsatz TEXT,
+        status TEXT NOT NULL DEFAULT 'neu',
+        set_id INTEGER,
+        FOREIGN KEY (benutzer_id) REFERENCES benutzer(id),
+        FOREIGN KEY (set_id) REFERENCES vokabel_set(id)
+    );
+    """)
 
     verbindung.commit()
     verbindung.close()

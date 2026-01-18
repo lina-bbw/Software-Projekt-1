@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card">
+  <h2>Passwort zurücksetzen</h2>
+
+  <form method="post">
+    <label>E-Mail</label>
+    <input name="email" type="email" value="{{ email }}" required>
+
+    <label>Reset-Code</label>
+    <input name="code" required>
+
+    <label>Neues Passwort</label>
+    <input name="neues_passwort" type="password" required>
+
+    <button class="btn btn-v" type="submit">Passwort ändern</button>
+  </form>
+
+  <a href="{{ url_for('anmelden') }}"><button class="btn btn-w">Zurück</button></a>
+</div>
+{% endblock %}

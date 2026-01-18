@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card">
+  <h2>Passwort vergessen</h2>
+  <p class="small">Demo-Lösung: Der Reset-Code wird angezeigt (kein E-Mail Versand).</p>
+
+  <form method="post">
+    <label>E-Mail</label>
+    <input name="email" type="email" required>
+    <button class="btn btn-v" type="submit">Reset-Code erstellen</button>
+  </form>
+
+  <a href="{{ url_for('anmelden') }}"><button class="btn btn-w">Zurück</button></a>
+</div>
+{% endblock %}

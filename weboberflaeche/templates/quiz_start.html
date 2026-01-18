@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card" style="text-align:center;">
+  <h2>Quiz (Multiple Choice)</h2>
+  <p class="small">Gemischt Wort/Übersetzung · max. 10 Fragen</p>
+
+  <form method="post" action="{{ url_for('quiz_starten') }}">
+    <button class="btn btn-v" type="submit">Quiz starten</button>
+  </form>
+
+  <a href="{{ url_for('dashboard') }}"><button class="btn btn-w">Zurück</button></a>
+</div>
+{% endblock %}

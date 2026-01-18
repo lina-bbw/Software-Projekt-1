@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card">
+  <h2>Quiz</h2>
+  <p class="small">Frage {{ nummer }}/{{ gesamt }}</p>
+
+  <div class="card" style="box-shadow:none; border:1px solid #eee;">
+    <strong>{{ frage }}</strong>
+  </div>
+
+  <form method="post">
+    {% for opt in optionen %}
+      <button class="btn btn-w" type="submit" name="antwort" value="{{ opt }}">{{ opt }}</button>
+    {% endfor %}
+  </form>
+
+  <p class="small">Tipp: Klick einfach eine Option an.</p>
+</div>
+{% endblock %}

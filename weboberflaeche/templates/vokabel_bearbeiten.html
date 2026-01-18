@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card">
+  <h2>Vokabel bearbeiten</h2>
+  <p class="small">Tipp: Beispielsatz oder Bemerkungen mit "-" löschen.</p>
+
+  <form method="post">
+    <label>Wort</label>
+    <input name="wort" value="{{ vokabel.wort }}">
+
+    <label>Übersetzung</label>
+    <input name="uebersetzung" value="{{ vokabel.uebersetzung }}">
+
+    <label>Beispielsatz</label>
+    <textarea name="beispielsatz" rows="3">{{ vokabel.beispielsatz if vokabel.beispielsatz else "" }}</textarea>
+
+    <label>Bemerkungen (Aussprache / Notizen)</label>
+    <textarea name="bemerkungen" rows="3">{{ vokabel.bemerkungen if vokabel.bemerkungen else "" }}</textarea>
+
+    <label>Set</label>
+    <select name="set_id">
+      <option value="">Unverändert lassen</option>
+      <option value="0">Kein Set</option>
+      {% for s in sets %}
+        <option value="{{ s.id }}" {% if vokabel.set_id == s.id %}selected{% endif %}>{{ s.name }}</option>
+      {% endfor %}
+    </select>
+
+    <button class="btn btn-v" type="submit">Speichern</button>
+  </form>
+</div>
+
+<a href="{{ url_for('vokabeln') }}"><button class="btn btn-w">Zurück</button></a>
+{% endblock %}

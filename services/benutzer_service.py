@@ -1,62 +1,63 @@
 # services/benutzer_service.py
 
-from typing import Optional
+import random
 
 from datenbank.benutzer_repository import BenutzerRepository
 from modelle.benutzer import Benutzer
-from sicherheit.passwort_hasher import hash_passwort
+
+# Import robust machen (VSCode/Startpfad-Probleme abfangen)
+try:
+    from sicherheit.passwort_hasher import PasswortHasher
+except ModuleNotFoundError:
+    # Fallback: wenn Python den Projekt-Root nicht sauber als Suchpfad hat
+    from ..sicherheit.passwort_hasher import PasswortHasher  # type: ignore
 
 
 class BenutzerService:
     """
-    Enthält die Logik rund um Registrierung und Anmeldung.
-    Der Service spricht mit dem Repository und kümmert sich
-    um das Hashen des Passworts.
+    Logik für Registrierung, Login und Passwort-Reset.
     """
 
     def __init__(self):
         self.benutzer_repository = BenutzerRepository()
 
     def registriere_neuen_benutzer(self, email: str, passwort: str) -> bool:
-        """
-        Versucht, einen neuen Benutzer anzulegen.
-        Gibt True zurück, wenn es geklappt hat.
-        """
         if not email or not passwort:
-            print("E-Mail und Passwort dürfen nicht leer sein.")
             return False
 
-        passwort_hash = hash_passwort(passwort)
-        erfolgreich = self.benutzer_repository.registriere_benutzer(
-            email=email, passwort_hash=passwort_hash
-        )
+        passwort_hash = PasswortHasher.erstelle_hash(passwort)
+        return self.benutzer_repository.benutzer_anlegen(email, passwort_hash)
 
-        if erfolgreich:
-            print("Benutzer wurde erfolgreich registriert.")
-        else:
-            print(
-                "Registrierung fehlgeschlagen. "
-                "Vielleicht existiert die E-Mail bereits?"
-            )
-
-        return erfolgreich
-
-    def melde_benutzer_an(self, email: str, passwort: str) -> Optional[Benutzer]:
-        """
-        Prüft E-Mail und Passwort.
-        Gibt ein Benutzer-Objekt zurück, wenn die Anmeldung erfolgreich war.
-        """
-        gespeicherter_hash = self.benutzer_repository.hole_passwort_hash(email)
-
-        if gespeicherter_hash is None:
-            print("Kein Benutzer mit dieser E-Mail gefunden.")
+    def melde_benutzer_an(self, email: str, passwort: str):
+        zeile = self.benutzer_repository.hole_benutzer_daten_per_email(email)
+        if zeile is None:
             return None
 
-        eingegebener_hash = hash_passwort(passwort)
-
-        if eingegebener_hash != gespeicherter_hash:
-            print("Passwort ist falsch.")
+        gespeicherter_hash = zeile["passwort_hash"]
+        if not PasswortHasher.pruefe_passwort(passwort, gespeicherter_hash):
             return None
 
-        benutzer = self.benutzer_repository.finde_benutzer_nach_email(email)
-        return benutzer
+        return Benutzer(benutzer_id=zeile["id"], email=zeile["email"])
+
+    def reset_code_erstellen(self, email: str) -> str | None:
+        """
+        Demo: Erzeugt einen 6-stelligen Code und speichert ihn.
+        """
+        zeile = self.benutzer_repository.hole_benutzer_daten_per_email(email)
+        if zeile is None:
+            return None
+
+        code = f"{random.randint(100000, 999999)}"
+        self.benutzer_repository.speichere_reset_code(email, code)
+        return code
+
+    def passwort_zuruecksetzen(self, email: str, code: str, neues_passwort: str) -> bool:
+        if not email or not code or not neues_passwort:
+            return False
+
+        ok = self.benutzer_repository.pruefe_reset_code(email, code)
+        if not ok:
+            return False
+
+        neuer_hash = PasswortHasher.erstelle_hash(neues_passwort)
+        return self.benutzer_repository.setze_passwort_hash(email, neuer_hash)

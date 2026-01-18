@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card">
+  <h2>Set bearbeiten</h2>
+  <p class="small">Aktuell: <strong>{{ set_obj.name }}</strong></p>
+  <form method="post">
+    <label>Neuer Name</label>
+    <input name="name" value="{{ set_obj.name }}" required>
+    <button class="btn btn-v" type="submit">Speichern</button>
+  </form>
+</div>
+<a href="{{ url_for('sets') }}"><button class="btn btn-w">Zurück</button></a>
+{% endblock %}

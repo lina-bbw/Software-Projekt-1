@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card">
+  <h2>Sets</h2>
+
+  <form method="post">
+    <label>Neues Set</label>
+    <input name="name" placeholder="z. B. Tiere" required>
+    <button class="btn btn-v" type="submit">Anlegen</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>Deine Sets</h3>
+  {% if sets %}
+    {% for s in sets %}
+      <div class="card" style="box-shadow:none; border:1px solid #eee;">
+        <strong>{{ s.name }}</strong>
+        <div class="row">
+          <a href="{{ url_for('set_bearbeiten', set_id=s.id) }}"><button class="btn btn-w" type="button">Bearbeiten</button></a>
+          <form method="post" action="{{ url_for('set_loeschen', set_id=s.id) }}">
+            <select name="modus">
+              <option value="behalten">Vokabeln behalten</option>
+              <option value="nur_leer">Nur wenn leer</option>
+              <option value="mit_vokabeln">Mit Vokabeln löschen</option>
+            </select>
+            <button class="btn btn-r" type="submit">Löschen</button>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p class="small">Noch keine Sets.</p>
+  {% endif %}
+</div>
+
+<a href="{{ url_for('dashboard') }}"><button class="btn btn-w">Zurück</button></a>
+{% endblock %}

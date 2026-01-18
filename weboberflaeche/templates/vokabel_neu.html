@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card">
+  <h2>Neue Vokabel</h2>
+  <form method="post">
+    <label>Wort*</label>
+    <input name="wort" required>
+
+    <label>Übersetzung*</label>
+    <input name="uebersetzung" required>
+
+    <label>Beispielsatz (optional)</label>
+    <textarea name="beispielsatz" rows="3"></textarea>
+
+    <label>Bemerkungen (optional, z. B. Aussprache / Notizen)</label>
+    <textarea name="bemerkungen" rows="3" placeholder="z. B. Aussprache, Merksatz, Grammatik ..."></textarea>
+
+    <label>Set (optional)</label>
+    <select name="set_id">
+      <option value="">Kein Set</option>
+      {% for s in sets %}
+        <option value="{{ s.id }}">{{ s.name }}</option>
+      {% endfor %}
+    </select>
+
+    <button class="btn btn-v" type="submit">Speichern</button>
+  </form>
+</div>
+
+<a href="{{ url_for('vokabeln') }}"><button class="btn btn-w">Zurück</button></a>
+{% endblock %}

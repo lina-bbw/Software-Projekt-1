@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card" style="text-align:center;">
+  <h2>Mit VocApp lernen</h2>
+  <p class="small">Registrieren, Vokabeln speichern, Sets nutzen und üben.</p>
+  <a href="{{ url_for('registrieren') }}"><button class="btn btn-w">Registrieren</button></a>
+  <a href="{{ url_for('anmelden') }}"><button class="btn btn-v">Anmelden</button></a>
+</div>
+{% endblock %}

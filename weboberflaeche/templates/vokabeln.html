@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card">
+  <h2>Vokabeln</h2>
+
+  <a href="{{ url_for('vokabel_neu') }}">
+    <button class="btn btn-v">Neue Vokabel</button>
+  </a>
+
+  <form method="get">
+    <label>Filter nach Set (optional)</label>
+    <select name="set_id">
+      <option value="">Alle</option>
+      {% for s in sets %}
+        <option value="{{ s.id }}" {% if aktuelles_set_id == s.id %}selected{% endif %}>{{ s.name }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-w" type="submit">Filtern</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>Übersicht</h3>
+
+  {% if vokabeln %}
+    <div style="overflow-x:auto;">
+      <table style="width:100%; border-collapse: collapse; font-size: 14px;">
+        <thead>
+          <tr style="text-align:left; border-bottom:1px solid #eee;">
+            <th style="padding:8px;">Wort</th>
+            <th style="padding:8px;">Übersetzung</th>
+            <th style="padding:8px;">Set</th>
+            <th style="padding:8px;">Status</th>
+            <th style="padding:8px;">Aktion</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for v in vokabeln %}
+          <tr style="border-bottom:1px solid #f2f2f2;">
+            <td style="padding:8px;"><strong>{{ v.wort }}</strong></td>
+            <td style="padding:8px;">{{ v.uebersetzung }}</td>
+            <td style="padding:8px;">{{ v.set_name if v.set_name else "-" }}</td>
+            <td style="padding:8px;">{{ v.status }}</td>
+            <td style="padding:8px;">
+              <a href="{{ url_for('vokabel_bearbeiten', vokabel_id=v.id) }}">Bearbeiten</a>
+              |
+              <form method="post"
+                    action="{{ url_for('vokabel_loeschen', vokabel_id=v.id) }}"
+                    style="display:inline;">
+                <button type="submit"
+                        style="border:none;background:none;color:#e74c3c;cursor:pointer;padding:0;">
+                  Löschen
+                </button>
+              </form>
+            </td>
+          </tr>
+
+          {% if v.notizen %}
+          <tr style="background:#faf7ff;">
+            <td colspan="5" style="padding:8px; font-size:12px; color:#555;">
+              <strong>Notizen:</strong> {{ v.notizen }}
+            </td>
+          </tr>
+          {% endif %}
+
+          {% if v.beispielsatz %}
+          <tr style="background:#fffdf5;">
+            <td colspan="5" style="padding:8px; font-size:12px; color:#555;">
+              <strong>Beispielsatz:</strong> {{ v.beispielsatz }}
+            </td>
+          </tr>
+          {% endif %}
+
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="small">Noch keine Vokabeln.</p>
+  {% endif %}
+</div>
+
+<a href="{{ url_for('dashboard') }}">
+  <button class="btn btn-w">Zurück</button>
+</a>
+
+{% endblock %}

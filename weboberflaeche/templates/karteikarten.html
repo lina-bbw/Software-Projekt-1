@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card" style="text-align:center;">
+  <h2>Karteikarten</h2>
+  <p class="small">Status: {{ vokabel.status }}</p>
+
+  <div style="background:#ffd86b; border-radius:16px; padding:28px 12px; margin-bottom:12px;">
+    <strong>{{ vokabel.wort }}</strong>
+  </div>
+
+  <div id="answer" style="visibility:hidden; background:#fff; border-radius:16px; padding:18px 12px; border:1px solid #eee;">
+    <div><strong>{{ vokabel.uebersetzung }}</strong></div>
+    {% if vokabel.beispielsatz %}
+      <div class="small" style="margin-top:8px;">{{ vokabel.beispielsatz }}</div>
+    {% endif %}
+  </div>
+
+  <button class="btn btn-v" onclick="document.getElementById('answer').style.visibility='visible'">Aufdecken</button>
+
+  <form method="post" action="{{ url_for('karteikarten_bewerten') }}">
+    <input type="hidden" name="vokabel_id" value="{{ vokabel.id }}">
+    <button class="btn btn-g" name="aktion" value="gewusst">gewusst</button>
+    <button class="btn btn-r" name="aktion" value="nicht_gewusst">nicht gewusst</button>
+  </form>
+
+  <a href="{{ url_for('dashboard') }}"><button class="btn btn-w">Zurück</button></a>
+</div>
+{% endblock %}

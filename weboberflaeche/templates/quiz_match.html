@@ -1,0 +1,166 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card">
+  <h2>Tippe die Paare an</h2>
+  <p class="small">Verbinde Wort und Übersetzung. 5 Paare = max. 5 Punkte.</p>
+
+  <!-- Wir speichern die gewählten Paare als JSON im Hidden Input -->
+  <form method="post" id="matchForm">
+    <input type="hidden" name="paare_json" id="paareJson" value="[]">
+
+    <div style="display:flex; gap:12px;">
+      <!-- Linke Spalte (Wörter) -->
+      <div style="flex:1;">
+        {% for wort in woerter %}
+          <button
+            type="button"
+            class="match-tile left-tile"
+            data-seite="links"
+            data-index="{{ loop.index0 }}"
+          >{{ wort }}</button>
+        {% endfor %}
+      </div>
+
+      <!-- Rechte Spalte (Übersetzungen) -->
+      <div style="flex:1;">
+        {% for u in uebersetzungen %}
+          <button
+            type="button"
+            class="match-tile right-tile"
+            data-seite="rechts"
+            data-index="{{ loop.index0 }}"
+          >{{ u }}</button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <button class="btn btn-v" style="margin-top:14px;" type="submit" id="abschickenBtn" disabled>
+      Weiter
+    </button>
+
+    <p class="small" style="margin-top:10px;">
+      Status: <span id="statusText">0/5 Paare gefunden</span>
+    </p>
+  </form>
+</div>
+
+<style>
+  /* Duolingo-like Tiles */
+  .match-tile{
+    width:100%;
+    padding:14px 12px;
+    margin:8px 0;
+    border-radius:14px;
+    border:1px solid #e5e5e5;
+    background:#fff;
+    cursor:pointer;
+    font-size:15px;
+    text-align:center;
+    box-shadow:0 2px 6px rgba(0,0,0,0.06);
+    transition: transform .05s ease, border-color .1s ease;
+  }
+  .match-tile:active{ transform: scale(0.99); }
+  .match-tile.ausgewaehlt{
+    border-color:#7b3fff;
+    box-shadow:0 0 0 3px rgba(123,63,255,0.15);
+  }
+  .match-tile.geloest{
+    opacity:0.45;
+    cursor:default;
+    border-color:#d9d9d9;
+    box-shadow:none;
+  }
+</style>
+
+<script>
+  // Wir bilden Paare wie in Duolingo: erst links klicken, dann rechts klicken.
+  let linksAuswahl = null;
+  let rechtsAuswahl = null;
+
+  // Hier speichern wir alle gefundenen Paare: [{l:0, r:3}, ...]
+  const paare = [];
+
+  const statusText = document.getElementById("statusText");
+  const abschickenBtn = document.getElementById("abschickenBtn");
+  const paareJsonInput = document.getElementById("paareJson");
+
+  function aktualisiereStatus() {
+    statusText.textContent = `${paare.length}/5 Paare gefunden`;
+    paareJsonInput.value = JSON.stringify(paare);
+    // Wenn 5 Paare gefunden -> Button aktiv
+    abschickenBtn.disabled = (paare.length !== 5);
+  }
+
+  function resetAuswahl() {
+    // Auswahl-Optik entfernen
+    document.querySelectorAll(".match-tile.ausgewaehlt").forEach(el => el.classList.remove("ausgewaehlt"));
+    linksAuswahl = null;
+    rechtsAuswahl = null;
+  }
+
+  function tileClick(e) {
+    const tile = e.currentTarget;
+
+    // Wenn schon geloest -> nix machen
+    if (tile.classList.contains("geloest")) return;
+
+    const seite = tile.dataset.seite;
+    const index = parseInt(tile.dataset.index);
+
+    // Toggle: wenn gleiche Tile nochmal -> abwählen
+    if (tile.classList.contains("ausgewaehlt")) {
+      tile.classList.remove("ausgewaehlt");
+      if (seite === "links") linksAuswahl = null;
+      if (seite === "rechts") rechtsAuswahl = null;
+      return;
+    }
+
+    // Wenn links geklickt
+    if (seite === "links") {
+      // Alte linke Auswahl visuell entfernen
+      document.querySelectorAll(".left-tile.ausgewaehlt").forEach(el => el.classList.remove("ausgewaehlt"));
+      tile.classList.add("ausgewaehlt");
+      linksAuswahl = { index, el: tile };
+    }
+
+    // Wenn rechts geklickt
+    if (seite === "rechts") {
+      document.querySelectorAll(".right-tile.ausgewaehlt").forEach(el => el.classList.remove("ausgewaehlt"));
+      tile.classList.add("ausgewaehlt");
+      rechtsAuswahl = { index, el: tile };
+    }
+
+    // Wenn beide Seiten ausgewählt -> Paar speichern + beide deaktivieren
+    if (linksAuswahl && rechtsAuswahl) {
+      paare.push({ l: linksAuswahl.index, r: rechtsAuswahl.index });
+
+      // beide als geloest markieren (Duolingo-like: nicht mehr anklickbar)
+      linksAuswahl.el.classList.remove("ausgewaehlt");
+      rechtsAuswahl.el.classList.remove("ausgewaehlt");
+      linksAuswahl.el.classList.add("geloest");
+      rechtsAuswahl.el.classList.add("geloest");
+
+      // Reset für nächstes Paar
+      linksAuswahl = null;
+      rechtsAuswahl = null;
+
+      aktualisiereStatus();
+    }
+  }
+
+  // Listener an alle Tiles
+  document.querySelectorAll(".match-tile").forEach(tile => {
+    tile.addEventListener("click", tileClick);
+  });
+
+  aktualisiereStatus();
+
+  // Extra: Wenn Nutzer abschickt, aber nicht 5 Paare hat -> verhindern
+  document.getElementById("matchForm").addEventListener("submit", function(evt){
+    if (paare.length !== 5) {
+      evt.preventDefault();
+      alert("Bitte erst alle 5 Paare finden.");
+    }
+  });
+</script>
+{% endblock %}

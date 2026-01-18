@@ -1,53 +1,86 @@
 # datenbank/benutzer_repository.py
 
-from typing import Optional
 from datenbank.datenbank_verbindung import hole_datenbank_verbindung
-from modelle.benutzer import Benutzer
 
 
 class BenutzerRepository:
     """
-    Kümmert sich um alle Datenbankzugriffe rund um den Benutzer.
+    SQL-Operationen für Benutzer:
+    - anlegen
+    - per email holen
+    - passwort ändern
+    - reset-code speichern / prüfen
     """
 
-    def registriere_benutzer(self, email: str, passwort_hash: str) -> bool:
-        """
-        Legt einen neuen Benutzer an.
-        Gibt True zurück, wenn das Anlegen geklappt hat,
-        ansonsten False (z. B. wenn die E-Mail schon existiert).
-        """
-        verbindung = hole_datenbank_verbindung()
-        cursor = verbindung.cursor()
-
+    def benutzer_anlegen(self, email: str, passwort_hash: str) -> bool:
         try:
+            verbindung = hole_datenbank_verbindung()
+            cursor = verbindung.cursor()
+
             cursor.execute(
-                """
-                INSERT INTO benutzer (email, passwort_hash)
-                VALUES (?, ?);
-                """,
+                "INSERT INTO benutzer (email, passwort_hash) VALUES (?, ?);",
                 (email, passwort_hash),
             )
+
             verbindung.commit()
-            return True
-        except Exception as fehler:
-            print("Fehler beim Registrieren:", fehler)
-            return False
-        finally:
             verbindung.close()
+            return True
+        except Exception:
+            return False
 
-    def finde_benutzer_nach_email(self, email: str) -> Optional[Benutzer]:
+    def hole_benutzer_daten_per_email(self, email: str):
+        verbindung = hole_datenbank_verbindung()
+        cursor = verbindung.cursor()
+
+        cursor.execute(
+            "SELECT id, email, passwort_hash FROM benutzer WHERE email = ?;",
+            (email,),
+        )
+        zeile = cursor.fetchone()
+        verbindung.close()
+        return zeile
+
+    def setze_passwort_hash(self, email: str, neuer_hash: str) -> bool:
+        verbindung = hole_datenbank_verbindung()
+        cursor = verbindung.cursor()
+
+        cursor.execute(
+            "UPDATE benutzer SET passwort_hash = ? WHERE email = ?;",
+            (neuer_hash, email),
+        )
+
+        verbindung.commit()
+        aenderungen = cursor.rowcount
+        verbindung.close()
+        return aenderungen > 0
+
+    def speichere_reset_code(self, email: str, code: str) -> None:
+        verbindung = hole_datenbank_verbindung()
+        cursor = verbindung.cursor()
+
+        cursor.execute(
+            "INSERT INTO passwort_reset (email, code) VALUES (?, ?);",
+            (email, code),
+        )
+
+        verbindung.commit()
+        verbindung.close()
+
+    def pruefe_reset_code(self, email: str, code: str) -> bool:
         """
-        Sucht einen Benutzer anhand seiner E-Mail-Adresse.
-        Gibt ein Benutzer-Objekt zurück oder None, wenn nichts gefunden wurde.
+        Prüft, ob der letzte gespeicherte Code für diese E-Mail übereinstimmt.
+        (Studentische Lösung: ohne Ablaufzeit)
         """
         verbindung = hole_datenbank_verbindung()
         cursor = verbindung.cursor()
 
         cursor.execute(
             """
-            SELECT id, email
-            FROM benutzer
-            WHERE email = ?;
+            SELECT code
+            FROM passwort_reset
+            WHERE email = ?
+            ORDER BY id DESC
+            LIMIT 1;
             """,
             (email,),
         )
@@ -56,30 +89,6 @@ class BenutzerRepository:
         verbindung.close()
 
         if zeile is None:
-            return None
+            return False
 
-        return Benutzer(benutzer_id=zeile["id"], email=zeile["email"])
-
-    def hole_passwort_hash(self, email: str) -> Optional[str]:
-        """
-        Gibt den gespeicherten Passwort-Hash zur E-Mail zurück
-        oder None, wenn kein Benutzer existiert.
-        """
-        verbindung = hole_datenbank_verbindung()
-        cursor = verbindung.cursor()
-
-        cursor.execute(
-            """
-            SELECT passwort_hash
-            FROM benutzer
-            WHERE email = ?;
-            """,
-            (email,),
-        )
-        zeile = cursor.fetchone()
-        verbindung.close()
-
-        if zeile is None:
-            return None
-
-        return zeile["passwort_hash"]
+        return zeile["code"] == code

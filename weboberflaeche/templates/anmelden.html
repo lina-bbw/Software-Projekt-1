@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card">
+  <h2>Anmelden</h2>
+  <form method="post">
+    <label>E-Mail</label>
+    <input name="email" type="email" required>
+    <label>Passwort</label>
+    <input name="passwort" type="password" required>
+    <button class="btn btn-v" type="submit">Anmelden</button>
+  </form>
+
+  <p class="small">
+    <a href="{{ url_for('passwort_vergessen') }}">Passwort vergessen?</a>
+  </p>
+</div>
+{% endblock %}
